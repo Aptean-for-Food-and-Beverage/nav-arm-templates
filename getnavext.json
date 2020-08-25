@@ -74,7 +74,8 @@
                 "Standard_D2s_v3",
                 "Standard_D4s_v3",
                 "Standard_D8s_v3",
-                "Standard_D16s_v3"
+                "Standard_D16s_v3",
+		"Standard_B4ms"
             ],
             "metadata": {
                 "Description": "Select the VM size of the deployment"
@@ -393,7 +394,7 @@
         "CertificatePfxPassword": "[parameters('CertificatePfxPassword')]",
         "PublicDnsName": "[parameters('PublicDnsName')]",
         "Multitenant": "[parameters('Multitenant')]",
-        "AssignPremiumPlan": "No",
+        "AssignPremiumPlan": "Yes",
         "CreateTestUsers": "No",
         "CreateAadUsers": "[parameters('CreateAadUsers')]",
         "EnableSymbolLoading": "[parameters('EnableSymbolLoading')]",
