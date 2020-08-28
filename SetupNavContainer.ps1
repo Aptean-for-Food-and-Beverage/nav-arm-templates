@@ -305,9 +305,10 @@ if ($includeCSIDE -eq "Yes" -or $includeAL -eq "Yes") {
     }
 }
 
-if ($multitenant -eq "Yes") {
-    $params += @{ "multitenant" = $true }
-}
+# if ($multitenant -eq "Yes") {
+#     $params += @{ "multitenant" = $true }
+# }
+$params += @{ "multitenant" = $false }
 
 if ($testToolkit -ne "No") {
     if ($licensefileuri -eq "") {
