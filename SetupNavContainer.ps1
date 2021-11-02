@@ -97,7 +97,9 @@ else {
 
         AddToStatus "Creating Aad Apps for Office 365 integration"
         if (([System.Version]$navVersion).Major -ge 15) {
-            $publicWebBaseUrl = "https://$publicDnsName/BC/"
+            #$publicWebBaseUrl = "https://$publicDnsName/BC/"
+            $serverName = $publicDnsName.substring(8, 9)
+            $publicWebBaseUrl = "https://$serverName.365food.nl/BC" # result, for example: https://s-weu-483.365food.nl/BC
         }
         else {
             $publicWebBaseUrl = "https://$publicDnsName/NAV/"
