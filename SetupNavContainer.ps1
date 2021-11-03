@@ -96,10 +96,10 @@ else {
         ' | Set-Content "c:\myfolder\SetupConfiguration.ps1"
 
         AddToStatus "Creating Aad Apps for Office 365 integration"
+        $serverName = $publicDnsName.substring(0, 9)
+        $appIdUri  = "https://$serverName.365food.nl/BC" #result, for example: https://s-weu-483.365food.nl/BC
         if (([System.Version]$navVersion).Major -ge 15) {
-            #$publicWebBaseUrl = "https://$publicDnsName/BC/"
-            $serverName = $publicDnsName.substring(8, 9)
-            $publicWebBaseUrl = "https://$serverName.365food.nl/BC" # result, for example: https://s-weu-483.365food.nl/BC
+            $publicWebBaseUrl = "https://$publicDnsName/BC/"
         }
         else {
             $publicWebBaseUrl = "https://$publicDnsName/NAV/"
@@ -107,7 +107,7 @@ else {
         $secureOffice365Password = ConvertTo-SecureString -String $Office365Password -Key $passwordKey
         $Office365Credential = New-Object System.Management.Automation.PSCredential($Office365UserName, $secureOffice365Password)
         try {
-            $AdProperties = Create-AadAppsForNav -AadAdminCredential $Office365Credential -appIdUri $publicWebBaseUrl -IncludeExcelAadApp -IncludePowerBiAadApp -IncludeEMailAadApp
+            $AdProperties = Create-AadAppsForNav -AadAdminCredential $Office365Credential -appIdUri $appIdUri -publicWebBaseUrl $publicWebBaseUrl -IncludeExcelAadApp -IncludePowerBiAadApp -IncludeEMailAadApp
 
             $SsoAdAppId = $AdProperties.SsoAdAppId
             $SsoAdAppKeyValue = $AdProperties.SsoAdAppKeyValue
@@ -132,6 +132,7 @@ else {
             $settings += "`$PowerBiAdAppKeyValue = '$PowerBiAdAppKeyValue'"
             $settings += "`$EMailAdAppId = '$EMailAdAppId'"
             $settings += "`$EMailAdAppKeyValue = '$EMailAdAppKeyValue'"
+            $settings += "`$appIdUri = '$appIdUri'"
 
             Set-Content -Path $settingsScript -Value $settings
     
