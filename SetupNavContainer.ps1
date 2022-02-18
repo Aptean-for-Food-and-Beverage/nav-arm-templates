@@ -348,6 +348,7 @@ try {
                      -auth $Auth `
                      -authenticationEMail $Office365UserName `
                      -credential $credential `
+                     -assignPremiumPlan `
                      -additionalParameters $additionalParameters `
                      -myScripts $myscripts
     
