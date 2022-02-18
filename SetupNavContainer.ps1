@@ -332,9 +332,9 @@ if ($testToolkit -ne "No") {
     }
 }
 
-if ($assignPremiumPlan -eq "Yes") {
-    $params += @{ "assignPremiumPlan" = $true }
-}
+# if ($assignPremiumPlan -eq "Yes") {
+#     $params += @{ "assignPremiumPlan" = $true }
+# }
 
 $myScripts = @()
 Get-ChildItem -Path "c:\myfolder" | % { $myscripts += $_.FullName }
