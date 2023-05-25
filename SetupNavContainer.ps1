@@ -104,6 +104,8 @@ else {
     }
     else {
         AddToStatus "Creating Aad Apps for Office 365 integration"
+        $serverName = $publicDnsName.substring(0, 9)
+        $appIdUri  = "https://$serverName.365food.nl/BC" #result, for example: https://s-weu-483.365food.nl/BC
         if (([System.Version]$navVersion).Major -ge 15) {
             if ($AddTraefik -eq "Yes") {
                 $publicWebBaseUrl = "https://$publicDnsName/$("$containerName".ToUpperInvariant())/"
@@ -115,6 +117,10 @@ else {
         else {
             $publicWebBaseUrl = "https://$publicDnsName/NAV/"
         }
+        $secureOffice365Password = ConvertTo-SecureString -String $Office365Password -Key $passwordKey
+        $Office365Credential = New-Object System.Management.Automation.PSCredential($Office365UserName, $secureOffice365Password)
+        try {
+            $AdProperties = Create-AadAppsForNav -AadAdminCredential $Office365Credential -appIdUri $appIdUri -publicWebBaseUrl $publicWebBaseUrl -IncludeExcelAadApp -IncludePowerBiAadApp -IncludeEMailAadApp
 
 @"
 `$appIdUri = '$appIdUri'
@@ -174,6 +180,7 @@ Set-NAVServerConfiguration -ServerInstance `$serverInstance -KeyName 'ExcelAddIn
             $settings += "`$OtherServicesAdAppKeyValue = '$OtherServicesAdAppKeyValue'"
             $settings += "`$ApiAdAppId = '$ApiAdAppId'"
             $settings += "`$ApiAdAppKeyValue = '$ApiAdAppKeyValue'"
+            $settings += "`$appIdUri = '$appIdUri'"
 
             Set-Content -Path $settingsScript -Value $settings
 
@@ -363,9 +370,10 @@ if ($includeCSIDE -eq "Yes" -or $includeAL -eq "Yes") {
     }
 }
 
-if ($multitenant -eq "Yes") {
-    $params += @{ "multitenant" = $true }
-}
+# if ($multitenant -eq "Yes") {
+#     $params += @{ "multitenant" = $true }
+# }
+$params += @{ "multitenant" = $false }
 
 if ($testToolkit -ne "No") {
     $params += @{ "includeTestToolkit" = $true }
@@ -377,9 +385,9 @@ if ($testToolkit -ne "No") {
     }
 }
 
-if ($assignPremiumPlan -eq "Yes") {
-    $params += @{ "assignPremiumPlan" = $true }
-}
+# if ($assignPremiumPlan -eq "Yes") {
+#     $params += @{ "assignPremiumPlan" = $true }
+# }
 
 $myScripts = @()
 Get-ChildItem -Path "c:\myfolder" | % { $myscripts += $_.FullName }
@@ -393,6 +401,7 @@ try {
                      -auth $Auth `
                      -authenticationEMail $Office365UserName `
                      -credential $credential `
+                     -assignPremiumPlan `
                      -additionalParameters $additionalParameters `
                      -myScripts $myscripts
     
@@ -522,7 +531,7 @@ if ($sqlServerType -eq "AzureSQL") {
         New-NavContainerTenant -containerName $containerName -tenantId "default" -sqlCredential $azureSqlCredential -ErrorAction Continue
     }    
     # Included "-ErrorAction Continue" to prevent an exit
-    New-NavContainerNavUser -containerName $containerName -tenant "default" -Credential $credential -AuthenticationEmail $Office365UserName -ChangePasswordAtNextLogOn:$false -PermissionSetId "SUPER" -ErrorAction Continue
+    New-NavContainerNavUser -containerName $containerName -tenant "default" -Credential $credential -Authentication $Office365UserName -ChangePasswordAtNextLogOn:$false -PermissionSetId "SUPER" -ErrorAction Continue
 } else {
     if (Test-Path "c:\demo\objects.fob" -PathType Leaf) {
         AddToStatus "Importing c:\demo\objects.fob to container"

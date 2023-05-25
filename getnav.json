@@ -50,7 +50,7 @@
             "type": "string",
             "defaultValue": "Standard_D4s_v3",
             "allowedValues": [
-                "Standard_D2_v2",
+                     "Standard_D2_v2",
                 "Standard_D3_v2",
                 "Standard_D4_v2",
                 "Standard_D5_v2",
@@ -315,7 +315,7 @@
         "CertificatePfxPassword": "",
         "PublicDnsName": "",
         "Multitenant": "No",
-        "AssignPremiumPlan": "No",
+        "AssignPremiumPlan": "Yes",
         "CreateTestUsers": "No",
         "CreateAadUsers": "[parameters('CreateAadUsers')]",
         "EnableSymbolLoading": "[parameters('EnableSymbolLoading')]",
