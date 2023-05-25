@@ -87,12 +87,11 @@ if ($Office365Password -eq "" -or (!$Office365UserName.contains('@'))) {
 }
 else {
     $auth = "AAD"
-
     $secureOffice365Password = ConvertTo-SecureString -String $Office365Password -Key $passwordKey
     $Office365Credential = New-Object System.Management.Automation.PSCredential($Office365UserName, $secureOffice365Password)
     $aadDomain = $Office365UserName.split('@')[1]
     $appIdUri = "https://$($publicDnsName.Split('.')[0]).$($publicDnsName.Split('.')[1]).$aadDomain/BC"
-
+    
     if (Test-Path "c:\myfolder\SetupConfiguration.ps1") {
         AddToStatus "Reusing existing Aad Apps for Office 365 integration"
 
@@ -117,10 +116,6 @@ else {
         else {
             $publicWebBaseUrl = "https://$publicDnsName/NAV/"
         }
-        $secureOffice365Password = ConvertTo-SecureString -String $Office365Password -Key $passwordKey
-        $Office365Credential = New-Object System.Management.Automation.PSCredential($Office365UserName, $secureOffice365Password)
-        try {
-            $AdProperties = Create-AadAppsForNav -AadAdminCredential $Office365Credential -appIdUri $appIdUri -publicWebBaseUrl $publicWebBaseUrl -IncludeExcelAadApp -IncludePowerBiAadApp -IncludeEMailAadApp
 
 @"
 `$appIdUri = '$appIdUri'
@@ -137,6 +132,13 @@ else {
                     throw "Failed to authenticate with Office 365"
                 }
             }
+            #$AdProperties = Create-AadAppsForNav `
+            #    -AadAdminCredential $Office365Credential `
+            #    -appIdUri $appIdUri `
+            #    -publicWebBaseUrl $publicWebBaseUrl `
+            #    -IncludeExcelAadApp `
+            #    -IncludePowerBiAadApp `
+            #    -IncludeEMailAadApp `
             $AdProperties = New-AadAppsForBC `
                 -bcAuthContext $authContext `
                 -appIdUri $appIdUri `
@@ -531,7 +533,7 @@ if ($sqlServerType -eq "AzureSQL") {
         New-NavContainerTenant -containerName $containerName -tenantId "default" -sqlCredential $azureSqlCredential -ErrorAction Continue
     }    
     # Included "-ErrorAction Continue" to prevent an exit
-    New-NavContainerNavUser -containerName $containerName -tenant "default" -Credential $credential -Authentication $Office365UserName -ChangePasswordAtNextLogOn:$false -PermissionSetId "SUPER" -ErrorAction Continue
+    New-NavContainerNavUser -containerName $containerName -tenant "default" -Credential $credential -AuthenticationEmail $Office365UserName -ChangePasswordAtNextLogOn:$false -PermissionSetId "SUPER" -ErrorAction Continue
 } else {
     if (Test-Path "c:\demo\objects.fob" -PathType Leaf) {
         AddToStatus "Importing c:\demo\objects.fob to container"
