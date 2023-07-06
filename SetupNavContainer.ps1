@@ -132,22 +132,26 @@ else {
                     throw "Failed to authenticate with Office 365"
                 }
             }
-            #$AdProperties = Create-AadAppsForNav `
-            #    -AadAdminCredential $Office365Credential `
-            #    -appIdUri $appIdUri `
-            #    -publicWebBaseUrl $publicWebBaseUrl `
-            #    -IncludeExcelAadApp `
-            #    -IncludePowerBiAadApp `
-            #    -IncludeEMailAadApp `
+            ##Temorary fix New-AadAppsForBC for Connect-MgGraph Secure-String accessToken issue
+            ##$AdProperties = New-AadAppsForBC `
+            ##    -bcAuthContext $authContext `
+            ##    -appIdUri $appIdUri `
+            ##    -publicWebBaseUrl $publicWebBaseUrl `
+            ##    -IncludeExcelAadApp `
+            ##    -IncludeApiAccess `
+            ##    -IncludeOtherServicesAadApp `
+            ##    -preAuthorizePowerShell
+            $authContext.AccessToken = ConvertTo-SecureString $authContext.AccessToken -AsPlainText -Force
+            Connect-MgGraph -AccessToken $AuthContext.accessToken | Out-Null
             $AdProperties = New-AadAppsForBC `
-                -bcAuthContext $authContext `
                 -appIdUri $appIdUri `
                 -publicWebBaseUrl $publicWebBaseUrl `
                 -IncludeExcelAadApp `
                 -IncludeApiAccess `
                 -IncludeOtherServicesAadApp `
-                -preAuthorizePowerShell
-
+                -preAuthorizePowerShell `
+                -useCurrentMicrosoftGraphConnection
+                
             $aadTenantId = $authContext.tenantID
             $SsoAdAppId = $AdProperties.SsoAdAppId
             $SsoAdAppKeyValue = $AdProperties.SsoAdAppKeyValue
