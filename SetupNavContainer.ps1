@@ -103,8 +103,8 @@ else {
     }
     else {
         AddToStatus "Creating Aad Apps for Office 365 integration"
-        $serverName = $publicDnsName.substring(0, 9)
-        $appIdUri  = "https://$serverName.365food.nl/BC" #result, for example: https://s-weu-483.365food.nl/BC
+        $serverName = "$($publicDnsName.Split('.')[0])"
+        $appIdUri  = "https://$serverName.365food.nl/BC" #result, for example: https://s-weu-483.365food.nl/BC   
         if (([System.Version]$navVersion).Major -ge 15) {
             if ($AddTraefik -eq "Yes") {
                 $publicWebBaseUrl = "https://$publicDnsName/$("$containerName".ToUpperInvariant())/"
