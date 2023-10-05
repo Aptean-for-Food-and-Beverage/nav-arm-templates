@@ -139,6 +139,14 @@
                 "Description": "Specify administrator user name for connecting to the VM"
             }
         },
+        "PublicationScope": {
+            "type": "string",
+            "defaultValue": "Dev",
+            "minLength": 1,
+            "metadata": {
+                "Description": "Specify publication scope for apps"
+            }
+        },
         "adminPassword": {
             "type": "securestring",
             "metadata": {
@@ -211,6 +219,7 @@
         "vmSize": "[parameters('vmSize')]",
         "RemoteDesktopAccess": "[parameters('RemoteDesktopAccess')]",
         "vmAdminUsername": "[trim(parameters('vmAdminUsername'))]",
+        "PublicationScope": "[trim(parameters('PublicationScope'))]",
         "adminPassword": "[parameters('adminPassword')]",
         "OperatingSystem": "[parameters('OperatingSystem')]",
         "imagePublisher": "[if(equals(variables('OperatingSystem'),'Windows 11'),'MicrosoftWindowsDesktop','MicrosoftWindowsServer')]",
@@ -458,7 +467,7 @@
                     "fileUris": [
                         "[uri(deployment().properties.templateLink.uri, 'initbuildagent.ps1')]"
                     ],
-                    "commandToExecute": "[concat(variables('ScriptCommandToExecute'),'initbuildagent.ps1',' -TemplateLink \"',deployment().properties.templateLink.uri,'\" -VMAdminUsername \"',variables('vmAdminUsername'),'\" -AdminPassword \"',replace(variables('adminPassword'),'\"','\\\"'),'\" -Organization \"',parameters('organization'),'\" -token \"',parameters('token'),'\" -Count ',parameters('count'),' -agentUrl \"',parameters('agentUrl'),'\" -installHyperV \"',parameters('installHyperV'),'\" -runInsideDocker \"',parameters('runInsideDocker'),'\" -FinalSetupScriptUrl \"',parameters('FinalSetupScriptUrl'),'\" -Pool \"',parameters('labelsorpool'),'\" -vmName \"',variables('vmName'),'\"')]"
+                    "commandToExecute": "[concat(variables('ScriptCommandToExecute'),'initbuildagent.ps1',' -TemplateLink \"',deployment().properties.templateLink.uri,'\" -VMAdminUsername \"',variables('vmAdminUsername'),'\" -AdminPassword \"',replace(variables('adminPassword'),'\"','\\\"'),'\" -Organization \"',parameters('organization'),'\" -token \"',parameters('token'),'\" -Count ',parameters('count'),' -agentUrl \"',parameters('agentUrl'),'\" -installHyperV \"',parameters('installHyperV'),'\" -runInsideDocker \"',parameters('runInsideDocker'),'\" -FinalSetupScriptUrl \"',parameters('FinalSetupScriptUrl'),'\" -Pool \"',parameters('labelsorpool'),'\" -vmName \"',variables('vmName'),'\" -PublicationScope \"',variables('PublicationScope'),'\"')]"
                 },
                 "protectedSettings": {}
             }

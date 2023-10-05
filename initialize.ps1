@@ -55,7 +55,8 @@ param
        [string] $organization              = "",
        [string] $token                     = "",
        [string] $pool                      = "",
-       [string] $agentUrl                  = ""
+       [string] $agentUrl                  = "",
+       [string] $PublicationScope          = ""
 )
 
 $verbosePreference = "SilentlyContinue"
@@ -85,6 +86,10 @@ function Download-File([string]$sourceUrl, [string]$destinationFile)
 
 if ($publicDnsName -eq "") {
     $publicDnsName = $hostname
+}
+
+if (!$PublicationScope) {
+    $PublicationScope = $PublicationScope
 }
 
 $artifactUrl = $artifactUrl.Trim()
@@ -165,7 +170,8 @@ if (Test-Path $settingsScript) {
     Get-VariableDeclaration -name "CreateStorageQueue"     | Add-Content $settingsScript
     Get-VariableDeclaration -name "AddTraefik"             | Add-Content $settingsScript
     Get-VariableDeclaration -name "nchBranch"              | Add-Content $settingsScript
-
+    Get-VariableDeclaration -name "PublicationScope"      | Add-Content $settingsScript
+    
     $passwordKey = New-Object Byte[] 16
     [Security.Cryptography.RNGCryptoServiceProvider]::Create().GetBytes($passwordKey)
     ('$passwordKey = [byte[]]@('+"$passwordKey".Replace(" ",",")+')') | Add-Content $settingsScript
@@ -356,6 +362,9 @@ Write-Host "DNS identity $dnsidentity"
 
 $ContactEMailForLetsEncrypt = ""
 Get-VariableDeclaration -name "ContactEMailForLetsEncrypt" | Add-Content $settingsScript
+
+$PublicationScope = ""
+Get-VariableDeclaration -name "PublicationScope" | Add-Content $settingsScript
 
 }
 

@@ -118,8 +118,8 @@ else {
     }
     else {
         AddToStatus "Creating Aad Apps for Office 365 integration"
-        $serverName = $publicDnsName.substring(0, 9)
-        $appIdUri  = "https://$serverName.365food.nl/BC" #result, for example: https://s-weu-483.365food.nl/BC
+        $serverName = "$($publicDnsName.Split('.')[0])"
+        $appIdUri  = "https://$serverName.365food.nl/BC" #result, for example: https://s-weu-483.365food.nl/BC   
         if (([System.Version]$navVersion).Major -ge 15) {
             if ($AddTraefik -eq "Yes") {
                 $publicWebBaseUrl = "https://$publicDnsName/$("$containerName".ToUpperInvariant())/"
@@ -147,22 +147,26 @@ else {
                     throw "Failed to authenticate with Office 365"
                 }
             }
-            #$AdProperties = Create-AadAppsForNav `
-            #    -AadAdminCredential $Office365Credential `
-            #    -appIdUri $appIdUri `
-            #    -publicWebBaseUrl $publicWebBaseUrl `
-            #    -IncludeExcelAadApp `
-            #    -IncludePowerBiAadApp `
-            #    -IncludeEMailAadApp `
+            ##Temorary fix New-AadAppsForBC for Connect-MgGraph Secure-String accessToken issue
+            ##$AdProperties = New-AadAppsForBC `
+            ##    -bcAuthContext $authContext `
+            ##    -appIdUri $appIdUri `
+            ##    -publicWebBaseUrl $publicWebBaseUrl `
+            ##    -IncludeExcelAadApp `
+            ##    -IncludeApiAccess `
+            ##    -IncludeOtherServicesAadApp `
+            ##    -preAuthorizePowerShell
+            $authContext.AccessToken = ConvertTo-SecureString $authContext.AccessToken -AsPlainText -Force
+            Connect-MgGraph -AccessToken $AuthContext.accessToken | Out-Null
             $AdProperties = New-AadAppsForBC `
-                -bcAuthContext $authContext `
                 -appIdUri $appIdUri `
                 -publicWebBaseUrl $publicWebBaseUrl `
                 -IncludeExcelAadApp `
                 -IncludeApiAccess `
                 -IncludeOtherServicesAadApp `
-                -preAuthorizePowerShell
-
+                -preAuthorizePowerShell `
+                -useCurrentMicrosoftGraphConnection
+                
             $aadTenantId = $authContext.tenantID
             $SsoAdAppId = $AdProperties.SsoAdAppId
             $SsoAdAppKeyValue = $AdProperties.SsoAdAppKeyValue
