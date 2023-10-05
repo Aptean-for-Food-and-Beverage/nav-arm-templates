@@ -4,6 +4,7 @@ param
        [string] $templateLink              = "https://raw.githubusercontent.com/Microsoft/nav-arm-templates/master/navdeveloperpreview.json",
        [string] $containerName             = "navserver",
        [string] $hostName                  = "",
+       [string] $AcceptInsiderEula         = "No",
        [string] $storageConnectionString   = "",
        [string] $isolation                 = "Default",
        [string] $vmAdminUsername           = "vmadmin",
@@ -89,6 +90,11 @@ if ($publicDnsName -eq "") {
 $artifactUrl = $artifactUrl.Trim()
 $navDockerImage = $navDockerImage.Trim()
 
+# Temporary fix for allowing insider builds until BcContainerHelper v6 is released
+if ($AcceptInsiderEula -eq "Yes") {
+    $nchBranch = "preview"
+}
+
 if ($artifactUrl -ne "" -and $navDockerImage -ne "") {
     # Both artifact Url AND navDockerImage specified, navDockerImage wins
     # Reason: ArtifactUrl is defaulted, navDockerImage is not - hence user must have specified a navDockerImage
@@ -116,6 +122,7 @@ if (Test-Path $settingsScript) {
     Get-VariableDeclaration -name "templateLink"           | Set-Content $settingsScript
     Get-VariableDeclaration -name "hostName"               | Add-Content $settingsScript
     Get-VariableDeclaration -name "StorageConnectionString"| Add-Content $settingsScript
+    Get-VariableDeclaration -name "AcceptInsiderEula"      | Add-Content $settingsScript
     Get-VariableDeclaration -name "containerName"          | Add-Content $settingsScript
     Get-VariableDeclaration -name "isolation"              | Add-Content $settingsScript
     Get-VariableDeclaration -name "vmAdminUsername"        | Add-Content $settingsScript
@@ -396,5 +403,20 @@ Register-ScheduledTask -TaskName "SetupStart" `
                        -RunLevel "Highest" `
                        -User "NT AUTHORITY\SYSTEM" | Out-Null
 
+try {
+    $version = [System.Version](Get-ItemPropertyValue -Path 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full' -Name 'Version')
+    if ($version -lt '4.8.0') {
+        AddToStatus "Installing DotNet 4.8 and restarting computer to start Installation tasks"
+        $ProgressPreference = "SilentlyContinue"
+        $dotnet48exe = Join-Path $downloadFolder "dotnet48.exe"
+        Invoke-WebRequest -UseBasicParsing -uri 'https://go.microsoft.com/fwlink/?linkid=2088631' -OutFile $dotnet48exe
+        & $dotnet48exe /q
+        # Wait 30 minutes - machine should restart before this...
+        Start-Sleep -Seconds 1800
+    }
+}
+catch {
+    AddToStatus ".NET Framework 4.7 or higher doesn't seem to be installed"
+}
 AddToStatus "Restarting computer and start Installation tasks"
 Shutdown -r -t 60
