@@ -498,6 +498,7 @@ if ($auth -eq "AAD") {
                 # temp fix (issue since BC24 - Invoke-Sqlcmd)
                 # Invoke-ScriptInBCContainer -containerName $containerName -scriptblock {
                 $session = Get-NavContainerSession -containerName $containerName
+                Invoke-Command -Session $session -ScriptBlock { 
                     $config = Get-NAVServerConfiguration -serverinstance $serverinstance -asxml
                     if ($config.SelectSingleNode("//appSettings/add[@key='Multitenant']").Value -eq 'True') {
                         $databaseName = "default"
