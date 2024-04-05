@@ -495,7 +495,9 @@ if ($auth -eq "AAD") {
             Invoke-NavContainerApi -containerName $containerName -tenant "default" -credential $credential -APIPublisher "Microsoft" -APIGroup "Setup" -APIVersion "beta" -CompanyId $companyId -Method "POST" -Query "aadApps" -body $parameters | Out-Null
     
             if ($sqlServerType -eq "SQLExpress") {
-                Invoke-ScriptInBCContainer -containerName $containerName -scriptblock {
+                # temp fix (issue since BC24 - Invoke-Sqlcmd)
+                # Invoke-ScriptInBCContainer -containerName $containerName -scriptblock {
+                $session = Get-NavContainerSession -containerName $containerName
                     $config = Get-NAVServerConfiguration -serverinstance $serverinstance -asxml
                     if ($config.SelectSingleNode("//appSettings/add[@key='Multitenant']").Value -eq 'True') {
                         $databaseName = "default"
