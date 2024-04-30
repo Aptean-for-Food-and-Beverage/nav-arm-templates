@@ -544,7 +544,7 @@
         "storageAccountName": "[concat('storage', uniqueString(resourceGroup().id))]",
         "storagequeueAccountName": "[concat('queue', uniqueString(resourceGroup().id))]",
         "networkSecurityGroupName": "[concat('networksecuritygroup',if(equals(parameters('AddTraefik'),'Yes'),'_traefik',''))]",
-        "dnsName": "[if(equals(parameters('DnsName'),''),[tolower(variables('vmName'))],parameters('DnsName'))]",
+        "dnsName": "[if(equals(parameters('DnsName'),''),tolower(variables('vmName')),parameters('DnsName'))]",
         "addressPrefix": "10.0.0.0/16",
         "subnetName": "Subnet",
         "subnetPrefix": "10.0.0.0/24",
