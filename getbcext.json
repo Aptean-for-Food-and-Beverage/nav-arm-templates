@@ -473,6 +473,14 @@
             "metadata": {
                 "Description": "Add traefik.io as reverse proxy. When using traefik, you will find the landing page on http://publicdnsname:8180."
             }
+        },
+	"DnsName": {
+            "type": "string",
+	    "defaultValue": "",
+            "minLength": 3,
+            "metadata": {
+                "Description": "Optional parameter to set dns name to something else than vm name."
+            }
         }
     },
     "variables": {
@@ -537,7 +545,7 @@
         "storageAccountName": "[concat('storage', uniqueString(resourceGroup().id))]",
         "storagequeueAccountName": "[concat('queue', uniqueString(resourceGroup().id))]",
         "networkSecurityGroupName": "[concat('networksecuritygroup',if(equals(parameters('AddTraefik'),'Yes'),'_traefik',''))]",
-        "dnsName": "[tolower(variables('vmName'))]",
+        "dnsName": "[if(equals(parameters('DnsName'),''),[tolower(variables('vmName'))],parameters('DnsName'))]",
         "addressPrefix": "10.0.0.0/16",
         "subnetName": "Subnet",
         "subnetPrefix": "10.0.0.0/24",
