@@ -477,7 +477,6 @@
 	"DnsName": {
             "type": "string",
 	    "defaultValue": "",
-            "minLength": 3,
             "metadata": {
                 "Description": "Optional parameter to set dns name to something else than vm name."
             }
