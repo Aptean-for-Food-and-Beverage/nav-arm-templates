@@ -95,11 +95,6 @@ if (!$PublicationScope) {
 $artifactUrl = $artifactUrl.Trim()
 $navDockerImage = $navDockerImage.Trim()
 
-# Temporary fix for allowing insider builds until BcContainerHelper v6 is released
-if ($AcceptInsiderEula -eq "Yes") {
-    $nchBranch = "preview"
-}
-
 if ($artifactUrl -ne "" -and $navDockerImage -ne "") {
     # Both artifact Url AND navDockerImage specified, navDockerImage wins
     # Reason: ArtifactUrl is defaulted, navDockerImage is not - hence user must have specified a navDockerImage
