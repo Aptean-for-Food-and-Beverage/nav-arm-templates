@@ -730,7 +730,6 @@
             "apiVersion": "2018-05-01",
             "name": "[concat(parameters('dnszones_name'), '/',variables('vmName') )]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/dnszones', parameters('dnszones_name'))]",
                 "[variables('publicIPAddressName')]"
             ],
             "properties": {
@@ -1093,8 +1092,7 @@
 			"condition": "[equals(variables('acceptEula'),'Yes')]",
             "dependsOn": [
                 "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
-                "[concat('Microsoft.Network/networkInterfaces/', variables('nic1Name'))]",
-                "[concat('Microsoft.Network/dnszones/A/',parameters('dnszones_name'), '/',variables('vmName') )]"
+                "[concat('Microsoft.Network/networkInterfaces/', variables('nic1Name'))]"
             ],
             "properties": {
                 "hardwareProfile": {
