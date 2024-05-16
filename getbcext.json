@@ -726,17 +726,36 @@
             }
         },
         {
-            "type": "Microsoft.Network/dnszones/A",
-            "apiVersion": "2018-05-01",
-            "name": "[concat(parameters('dnszones_name'), '/',variables('vmName') )]",
+            "apiVersion": "2017-05-10",
+            "name": "nestedTemplate",
             "dependsOn": [
-                "[variables('publicIPAddressName')]"
+               "[variables('publicIPAddressName')]"
             ],
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "rg-westeu-shared",
+            "subscriptionId": "254fefe5-4f35-4c3a-b948-398e10174c85",
             "properties": {
-                "TTL": 3600,
-                "targetResource": {                    
-                    "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]"
-                }
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "variables": {},
+                    "resources": [
+                        {
+                            "type": "Microsoft.Network/dnszones/A",
+                            "apiVersion": "2018-05-01",
+                            "name": "[concat(parameters('dnszones_name'), '/',variables('vmName') )]",
+                            "properties": {
+                                "TTL": 3600,
+                                "targetResource": {                    
+                                    "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "parameters": {}
             }
         },
         {
