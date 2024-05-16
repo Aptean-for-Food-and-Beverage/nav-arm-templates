@@ -1094,7 +1094,7 @@
             "dependsOn": [
                 "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
                 "[concat('Microsoft.Network/networkInterfaces/', variables('nic1Name'))]",
-                "[concat(parameters('dnszones_name'), '/',variables('vmName') )]"
+                "[concat('Microsoft.Network/dnszones/A/',parameters('dnszones_name'), '/',variables('vmName') )]"
             ],
             "properties": {
                 "hardwareProfile": {
