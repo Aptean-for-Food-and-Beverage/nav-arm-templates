@@ -473,10 +473,17 @@
             "metadata": {
                 "Description": "Add traefik.io as reverse proxy. When using traefik, you will find the landing page on http://publicdnsname:8180."
             }
+        },        
+        "dnszones_name": {
+            "defaultValue": "vm.365food.nl",
+            "type": "String",
+            "metadata": {
+                "Description": "Optional parameter to set dns zone name."
+            }
         },
-	"DnsName": {
+	    "DnsName": {
             "type": "string",
-	    "defaultValue": "",
+	        "defaultValue": "",
             "metadata": {
                 "Description": "Optional parameter to set dns name to something else than vm name."
             }
@@ -715,6 +722,21 @@
                 "publicIPAllocationMethod": "Dynamic",
                 "dnsSettings": {
                     "domainNameLabel": "[variables('dnsName')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/dnszones/A",
+            "apiVersion": "2018-05-01",
+            "name": "[concat(parameters('dnszones_name'), '/',variables('vmName') )]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/dnszones', parameters('dnszones_name'))]",
+                "[variables('publicIPAddressName')]"
+            ],
+            "properties": {
+                "TTL": 3600,
+                "targetResource": {                    
+                    "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]"
                 }
             }
         },
@@ -1071,7 +1093,8 @@
 			"condition": "[equals(variables('acceptEula'),'Yes')]",
             "dependsOn": [
                 "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
-                "[concat('Microsoft.Network/networkInterfaces/', variables('nic1Name'))]"
+                "[concat('Microsoft.Network/networkInterfaces/', variables('nic1Name'))]",
+                "[concat(parameters('dnszones_name'), '/',variables('vmName') )]"
             ],
             "properties": {
                 "hardwareProfile": {
