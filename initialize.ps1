@@ -168,8 +168,8 @@ if (Test-Path $settingsScript) {
     Get-VariableDeclaration -name "AddTraefik"             | Add-Content $settingsScript
     Get-VariableDeclaration -name "nchBranch"              | Add-Content $settingsScript
     Get-VariableDeclaration -name "PublicationScope"      | Add-Content $settingsScript
-    Get-VariableDeclaration -name "CDSClientID"           | Add-Content $settingsScript
-    Get-VariableDeclaration -name "CDSClientSecret"       | Add-Content $settingsScript
+    Get-VariableDeclaration -name "VMClientID"           | Add-Content $settingsScript
+    Get-VariableDeclaration -name "VMClientSecret"       | Add-Content $settingsScript
     
     $passwordKey = New-Object Byte[] 16
     [Security.Cryptography.RNGCryptoServiceProvider]::Create().GetBytes($passwordKey)

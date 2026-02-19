@@ -138,10 +138,10 @@ else {
 "@ | Set-Content "c:\myfolder\SetupConfiguration.ps1"
 
         try {
-            if ($CDSClientId -and $CDSClientSecret) {
+            if ($VMClientID -and $VMClientSecret) {
                 AddToStatus "Using CDS App registration (CDSClientId) for authentication"
-                $secureCDSSecret = ConvertTo-SecureString $CDSClientSecret -AsPlainText -Force
-                $authContext = New-BcAuthContext -tenantID $aadDomain -clientID $CDSClientId -clientSecret $secureCDSSecret -scopes "https://graph.microsoft.com/.default"
+                $secureCDSSecret = ConvertTo-SecureString $VMClientSecret -AsPlainText -Force
+                $authContext = New-BcAuthContext -tenantID $aadDomain -clientID $VMClientID -clientSecret $secureCDSSecret -scopes "https://graph.microsoft.com/.default"
                 if (-not $authContext) {
                     throw "Failed to authenticate using CDS App registration (CDSClientId)"
                 }
