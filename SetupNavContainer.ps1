@@ -139,11 +139,11 @@ else {
 
         try {
             if ($VMClientID -and $VMClientSecret) {
-                AddToStatus "Using CDS App registration (CDSClientId) for authentication"
-                $secureCDSSecret = ConvertTo-SecureString $VMClientSecret -AsPlainText -Force
-                $authContext = New-BcAuthContext -tenantID $aadDomain -clientID $VMClientID -clientSecret $secureCDSSecret -scopes "https://graph.microsoft.com/.default"
+                AddToStatus "Using VM App registration (VMClientId) for authentication"
+                $secureVMSecret = ConvertTo-SecureString $VMClientSecret -AsPlainText -Force
+                $authContext = New-BcAuthContext -tenantID $aadDomain -clientID $VMClientID -clientSecret $secureVMSecret -scopes "https://graph.microsoft.com/.default"
                 if (-not $authContext) {
-                    throw "Failed to authenticate using CDS App registration (CDSClientId)"
+                    throw "Failed to authenticate using VM App registration (VMClientId)"
                 }
             }
             else {
