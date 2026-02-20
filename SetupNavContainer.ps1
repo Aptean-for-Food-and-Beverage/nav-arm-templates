@@ -139,10 +139,13 @@ else {
 "@ | Set-Content "c:\myfolder\SetupConfiguration.ps1"
 
         try {
-            $authContext = New-BcAuthContext -includeDeviceLogin -scopes "https://graph.microsoft.com/.default"
+            AddToStatus "Requesting device login code..."
+            $authContext = New-BcAuthContext -includeDeviceLogin -scopes "https://graph.microsoft.com/.default" -deviceLoginTimeout ([TimeSpan]::FromSeconds(0))
             AddToStatus $authContext.message
+            AddToStatus "Waiting up to 30 minutes for device login to be completed..."
+            $authContext = New-BcAuthContext -deviceCode $authContext.deviceCode -deviceLoginTimeout ([TimeSpan]::FromMinutes(30))
             if (-not $authContext) {
-                throw "Failed to authenticate with Office 365"
+                throw "Failed to authenticate with Office 365 - device login timed out"
             }
             ##Temorary fix New-AadAppsForBC for Connect-MgGraph Secure-String accessToken issue
             ##$AdProperties = New-AadAppsForBC `
