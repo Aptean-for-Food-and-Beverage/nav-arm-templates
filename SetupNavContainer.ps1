@@ -1,6 +1,6 @@
 ﻿if (!(Test-Path function:AddToStatus)) {
     function AddToStatus([string]$line, [string]$color = "Gray") {
-        ("<font color=""$color"">" + [DateTime]::Now.ToString([System.Globalization.DateTimeFormatInfo]::CurrentInfo.ShortTimePattern.replace(":mm",":mm:ss")) + " $line</font>") | Add-Content -Path "c:\demo\status.txt" -Force -ErrorAction SilentlyContinue
+        ("<font color=""$color"">" + [DateTime]::Now.ToString([System.Globalization.DateTimeFormatInfo]::CurrentInfo.ShortTimePattern.replace(":mm", ":mm:ss")) + " $line</font>") | Add-Content -Path "c:\demo\status.txt" -Force -ErrorAction SilentlyContinue
         Write-Host -ForegroundColor $color $line 
     }
 }
@@ -8,7 +8,8 @@
 if (Test-Path -Path "C:\demo\*\BcContainerHelper.psm1") {
     $module = Get-Item -Path "C:\demo\*\BcContainerHelper.psm1"
     Import-module $module.FullName -DisableNameChecking
-} else {
+}
+else {
     Import-Module -name bccontainerhelper -DisableNameChecking
 }
 
@@ -22,11 +23,11 @@ if ($artifactUrl) {
         $segments = "$artifactUrl/////".Split('/')
         $params = @{
             "storageAccount" = $segments[0]
-            "type" = $segments[1]
-            "version" = $segments[2]
-            "country" = $segments[3]
-            "select" = $segments[4]
-            "sasToken" = $segments[5]
+            "type"           = $segments[1]
+            "version"        = $segments[2]
+            "country"        = $segments[3]
+            "select"         = $segments[4]
+            "sasToken"       = $segments[5]
         }
         if ($AcceptInsiderEula -eq "Yes") {
             $params += @{ "accept_insiderEula" = $true }
@@ -48,7 +49,7 @@ if ($artifactUrl) {
     
     $cu = ""
     if ($appManifest.PSObject.Properties.name -eq "Cu") {
-        $cu =$appManifest.Cu
+        $cu = $appManifest.Cu
     }
 
     $navVersion = $appmanifest.Version
@@ -69,7 +70,7 @@ elseif ($navDockerImage) {
     $exist = $false
     docker images -q --no-trunc | ForEach-Object {
         $inspect = docker inspect $_ | ConvertFrom-Json
-        if ($inspect | % { $_.RepoTags | Where-Object { "$_" -eq "$imageName" -or "$_" -eq "${imageName}:latest"} } ) { $exist = $true }
+        if ($inspect | % { $_.RepoTags | Where-Object { "$_" -eq "$imageName" -or "$_" -eq "${imageName}:latest" } } ) { $exist = $true }
     }
     if (!$exist) {
         AddToStatus "Pulling $imageName (this might take ~30 minutes)"
@@ -111,15 +112,15 @@ else {
         AddToStatus "Reusing existing Aad Apps for Office 365 integration"
 
         $params += @{
-            "AadTenant" = $aadTenantId
-            "AadAppId" =  $SsoAdAppId
+            "AadTenant"   = $aadTenantId
+            "AadAppId"    = $SsoAdAppId
             "AadAppIdUri" = $appIdUri
         }
     }
     else {
         AddToStatus "Creating Aad Apps for Office 365 integration"
         $serverName = "$($publicDnsName.Split('.')[0])"
-        $appIdUri  = "https://$serverName.365food.nl/BC" #result, for example: https://s-weu-483.365food.nl/BC   
+        $appIdUri = "https://$serverName.365food.nl/BC" #result, for example: https://s-weu-483.365food.nl/BC   
         if (([System.Version]$navVersion).Major -ge 15) {
             if ($AddTraefik -eq "Yes") {
                 $publicWebBaseUrl = "https://$publicDnsName/$("$containerName".ToUpperInvariant())/"
@@ -132,30 +133,16 @@ else {
             $publicWebBaseUrl = "https://$publicDnsName/NAV/"
         }
 
-@"
+        @"
 `$appIdUri = '$appIdUri'
 . 'c:\run\SetupConfiguration.ps1'
 "@ | Set-Content "c:\myfolder\SetupConfiguration.ps1"
 
         try {
-            if ($VMClientID -and $VMClientSecret) {
-                AddToStatus "Using VM App registration (VMClientId) for authentication"
-                $secureVMSecret = ConvertTo-SecureString $VMClientSecret -AsPlainText -Force
-                $authContext = New-BcAuthContext -tenantID $aadDomain -clientID $VMClientID -clientSecret $secureVMSecret -scopes "https://graph.microsoft.com/.default"
-                if (-not $authContext) {
-                    throw "Failed to authenticate using VM App registration (VMClientId)"
-                }
-            }
-            else {
-                $authContext = New-BcAuthContext -tenantID $aadDomain -credential $Office365Credential -scopes "https://graph.microsoft.com/.default"
-                if (-not $authContext) {
-                    $authContext = New-BcAuthContext -includeDeviceLogin -scopes "https://graph.microsoft.com/.default" -deviceLoginTimeout ([TimeSpan]::FromSeconds(0))
-                    AddToStatus $authContext.message
-                    $authContext = New-BcAuthContext -deviceCode $authContext.deviceCode -deviceLoginTimeout ([TimeSpan]::FromMinutes(30))
-                    if (-not $authContext) {
-                        throw "Failed to authenticate with Office 365"
-                    }
-                }
+            $authContext = New-BcAuthContext -includeDeviceLogin -scopes "https://graph.microsoft.com/.default"
+            AddToStatus $authContext.message
+            if (-not $authContext) {
+                throw "Failed to authenticate with Office 365"
             }
             ##Temorary fix New-AadAppsForBC for Connect-MgGraph Secure-String accessToken issue
             ##$AdProperties = New-AadAppsForBC `
@@ -187,7 +174,7 @@ else {
             $ApiAdAppId = $AdProperties.ApiAdAppId
             $ApiAdAppKeyValue = $AdProperties.ApiAdAppKeyValue
 
-@"
+            @"
 Set-NAVServerConfiguration -ServerInstance `$serverInstance -KeyName 'ExcelAddInAzureActiveDirectoryClientId' -KeyValue '$ExcelAdAppId' -WarningAction Ignore
 "@ | Add-Content "c:\myfolder\SetupConfiguration.ps1"
 
@@ -216,12 +203,13 @@ Set-NAVServerConfiguration -ServerInstance `$serverInstance -KeyName 'ExcelAddIn
             Set-Content -Path $settingsScript -Value $settings
 
             $params += @{
-                "AadTenant" = $aadTenantId
-                "AadAppId" =  $SsoAdAppId
+                "AadTenant"   = $aadTenantId
+                "AadAppId"    = $SsoAdAppId
                 "AadAppIdUri" = $appIdUri
             }
     
-        } catch {
+        }
+        catch {
             AddToStatus -color Red $_.Exception.Message
             AddToStatus -color Red "Reverting to NavUserPassword authentication"
             $auth = "NavUserPassword"            
@@ -231,9 +219,11 @@ Set-NAVServerConfiguration -ServerInstance `$serverInstance -KeyName 'ExcelAddIn
 
 if ($nav -eq "2016" -or $nav -eq "2017" -or $nav -eq "2018") {
     $title = "Dynamics NAV $nav Demonstration Environment"
-} elseif ($nav -eq "main") {
+}
+elseif ($nav -eq "main") {
     $title = "Dynamics 365 Business Central Preview Environment"
-} else {
+}
+else {
     $title = "Dynamics 365 Business Central Sandbox Environment"
 }
 
@@ -251,25 +241,25 @@ $securePassword = ConvertTo-SecureString -String $adminPassword -Key $passwordKe
 $credential = New-Object System.Management.Automation.PSCredential($navAdminUsername, $securePassword)
 $azureSqlCredential = New-Object System.Management.Automation.PSCredential($azureSqlAdminUsername, $securePassword)
 $params += @{
-    "licensefile" = "$licensefileuri"
+    "licensefile"   = "$licensefileuri"
     "publicDnsName" = $publicDnsName
-    "imageName" = "mybc:$navVersion-$country".ToLowerInvariant()
+    "imageName"     = "mybc:$navVersion-$country".ToLowerInvariant()
 }
         
 if ($AddTraefik -eq "Yes") {
     $params += @{ "useTraefik" = $true }
 }
 else {
-    $params.Add("publishPorts", @(8080,443,7046,7047,7048,7049))
+    $params.Add("publishPorts", @(8080, 443, 7046, 7047, 7048, 7049))
 }
 
 $additionalParameters = @("--env RemovePasswordKeyFile=N",
-                          "--storage-opt size=100GB")
+    "--storage-opt size=100GB")
 
 if ("$appBacpacUri" -ne "") {
     if ("$sqlServerType" -eq "SQLExpress") {
         $additionalParameters += @("--env appbacpac=$appBacpacUri",
-                                   "--env tenantbacpac=$tenantBacpacUri")
+            "--env tenantbacpac=$tenantBacpacUri")
         $params += @{ "timeout" = 7200 }
     }
     elseif ("$sqlServerType" -eq "SQLDeveloper") {
@@ -277,10 +267,11 @@ if ("$appBacpacUri" -ne "") {
     }
     else {
         AddToStatus "using $azureSqlServer as database server"
-        $params += @{ "databaseServer"     = "$azureSqlServer"
-                      "databaseInstance"   = ""
-                      "databaseName"       = "App"
-                      "databaseCredential" = $azureSqlCredential }
+        $params += @{ "databaseServer" = "$azureSqlServer"
+            "databaseInstance"         = ""
+            "databaseName"             = "App"
+            "databaseCredential"       = $azureSqlCredential 
+        }
         if ($tenantBacpacUri -ne "") {
             $multitenant = "Yes"
         }
@@ -359,12 +350,13 @@ elseif ($databaseBakUri) {
 }
 
 if ("$clickonce" -eq "Yes") {
-    $params += @{"clickonce" = $true}
+    $params += @{"clickonce" = $true }
 }
 
 if ("$enableTaskScheduler" -eq "Yes") {
     $additionalParameters += @("--env CustomNavSettings=EnableTaskScheduler=true")
-} elseif ("$enableTaskScheduler" -eq "No") {
+}
+elseif ("$enableTaskScheduler" -eq "No") {
     $additionalParameters += @("--env CustomNavSettings=EnableTaskScheduler=false")
 }
 
@@ -426,17 +418,18 @@ Get-ChildItem -Path "c:\myfolder" | % { $myscripts += $_.FullName }
 try {
     AddToStatus "Running container (this might take some time)"
     New-NavContainer -accept_eula -accept_outdated @Params `
-                     -containerName $containerName `
-                     -useSSL `
-                     -updateHosts `
-                     -auth $Auth `
-                     -authenticationEMail $Office365UserName `
-                     -credential $credential `
-                     -assignPremiumPlan `
-                     -additionalParameters $additionalParameters `
-                     -myScripts $myscripts
+        -containerName $containerName `
+        -useSSL `
+        -updateHosts `
+        -auth $Auth `
+        -authenticationEMail $Office365UserName `
+        -credential $credential `
+        -assignPremiumPlan `
+        -additionalParameters $additionalParameters `
+        -myScripts $myscripts
     
-} catch {
+}
+catch {
     AddToStatus -color Red "Container output"
     docker logs $containerName | % { AddToStatus $_ }
     throw
@@ -487,14 +480,14 @@ if ($auth -eq "AAD" -and ([System.Version]$navVersion) -lt ([System.Version]"25.
         $companyId = Get-NavContainerApiCompanyId -containerName $containerName -tenant "default" -credential $credential
 
         $parameters = @{ 
-            "name" = "SetupAzureAdApp"
+            "name"  = "SetupAzureAdApp"
             "value" = "$OtherServicesAdAppId,$OtherServicesAdAppKeyValue"
         }
         Invoke-NavContainerApi -containerName $containerName -tenant "default" -credential $credential -APIPublisher "Microsoft" -APIGroup "Setup" -APIVersion "beta" -CompanyId $companyId -Method "POST" -Query "aadApps" -body $parameters | Out-Null
 
         if (([System.Version]$navVersion) -ge ([System.Version]"18.0.0.0")) {
             $parameters = @{ 
-                "name" = "SetupAadApplication"
+                "name"  = "SetupAadApplication"
                 "value" = "$ApiAdAppId,API,D365 ADMINISTRATOR:D365 FULL ACCESS"
             }
             Invoke-NavContainerApi -containerName $containerName -tenant "default" -credential $credential -APIPublisher "Microsoft" -APIGroup "Setup" -APIVersion "beta" -CompanyId $companyId -Method "POST" -Query "aadApps" -body $parameters | Out-Null
@@ -502,7 +495,7 @@ if ($auth -eq "AAD" -and ([System.Version]$navVersion) -lt ([System.Version]"25.
 
         if (([System.Version]$navVersion) -ge ([System.Version]"17.1.0.0")) {
             $parameters = @{
-                "name" = "SetupEMailAdApp"
+                "name"  = "SetupEMailAdApp"
                 "value" = "$OtherServicesAdAppId,$OtherServicesAdAppKeyValue,$Office365UserName"
             }
             Invoke-NavContainerApi -containerName $containerName -tenant "default" -credential $credential -APIPublisher "Microsoft" -APIGroup "Setup" -APIVersion "beta" -CompanyId $companyId -Method "POST" -Query "aadApps" -body $parameters | Out-Null
@@ -569,7 +562,8 @@ if ($sqlServerType -eq "AzureSQL") {
     }    
     # Included "-ErrorAction Continue" to prevent an exit
     New-NavContainerNavUser -containerName $containerName -tenant "default" -Credential $credential -AuthenticationEmail $Office365UserName -ChangePasswordAtNextLogOn:$false -PermissionSetId "SUPER" -ErrorAction Continue
-} else {
+}
+else {
     if (Test-Path "c:\demo\objects.fob" -PathType Leaf) {
         AddToStatus "Importing c:\demo\objects.fob to container"
         $sqlCredential = New-Object System.Management.Automation.PSCredential ( "sa", $credential.Password )
@@ -578,7 +572,7 @@ if ($sqlServerType -eq "AzureSQL") {
 }
 
 if ("$includeappUris".Trim() -ne "") {
-    foreach($includeApp in "$includeAppUris".Split(',;')) {
+    foreach ($includeApp in "$includeAppUris".Split(',;')) {
         Publish-NavContainerApp -containerName $containerName -appFile $includeApp -sync -install -skipVerification
     }
 }
@@ -588,16 +582,16 @@ if ("$bingmapskey" -ne "") {
     $codeunitId = 0
     $apiMethod = ""
     switch (([System.Version]$navVersion).Major) {
-         9      { $appFile = "" }
-        10      { $appFile = "" }
-        11      { $appFile = "https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/11.0.0/freddyk_BingMaps_11.0.0.0.zip";                   $codeunitId = 50103 }
-        12      { $appFile = "https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/12.0.0/freddyk_BingMaps_12.0.0.0.zip";                   $codeunitId = 50103 }
-        13      { $appFile = "https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/12.0.0/freddyk_BingMaps_12.0.0.0.zip";                   $codeunitId = 50103 }
-        14      { $appFile = "https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/12.0.0/freddyk_BingMaps_12.0.0.0.zip";                   $codeunitId = 50103 }
-        15      { $appFile = "https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/15.0.0/Freddy.Kristiansen_BingMaps_15.0.zip";            $codeunitId = 70103 }
-        16      { $appFile = "https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/16.0.0/Freddy.Kristiansen_BingMaps_16.0.zip";            $apiMethod = "Settings" }
-        17      { $appFile = "https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/16.0.0/Freddy.Kristiansen_BingMaps_16.0.zip";            $apiMethod = "Settings" }
-        18      { $appFile = "https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/16.0.0/Freddy.Kristiansen_BingMaps_16.0.zip";            $apiMethod = "Settings" }
+        9 { $appFile = "" }
+        10 { $appFile = "" }
+        11 { $appFile = "https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/11.0.0/freddyk_BingMaps_11.0.0.0.zip"; $codeunitId = 50103 }
+        12 { $appFile = "https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/12.0.0/freddyk_BingMaps_12.0.0.0.zip"; $codeunitId = 50103 }
+        13 { $appFile = "https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/12.0.0/freddyk_BingMaps_12.0.0.0.zip"; $codeunitId = 50103 }
+        14 { $appFile = "https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/12.0.0/freddyk_BingMaps_12.0.0.0.zip"; $codeunitId = 50103 }
+        15 { $appFile = "https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/15.0.0/Freddy.Kristiansen_BingMaps_15.0.zip"; $codeunitId = 70103 }
+        16 { $appFile = "https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/16.0.0/Freddy.Kristiansen_BingMaps_16.0.zip"; $apiMethod = "Settings" }
+        17 { $appFile = "https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/16.0.0/Freddy.Kristiansen_BingMaps_16.0.zip"; $apiMethod = "Settings" }
+        18 { $appFile = "https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/16.0.0/Freddy.Kristiansen_BingMaps_16.0.zip"; $apiMethod = "Settings" }
         default { $appFile = "https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/19.0.0/bcsamples-bingmaps.pte-main-Apps-19.0.168.0.zip"; $apiMethod = "Settings" }
     }
 
@@ -617,22 +611,22 @@ if ("$bingmapskey" -ne "") {
         
         AddToStatus "Installing BingMaps app from $appFile"
         Publish-NavContainerApp -containerName $containerName `
-                                -tenant "default" `
-                                -packageType Extension `
-                                -appFile $appFile `
-                                -skipVerification `
-                                -sync `
-                                -install
+            -tenant "default" `
+            -packageType Extension `
+            -appFile $appFile `
+            -skipVerification `
+            -sync `
+            -install
     
         if ($codeunitId) {
             AddToStatus "Geocode customers, by invoking codeunit $codeunitId"
             Get-CompanyInNavContainer -containerName $containerName | % {
                 Invoke-NavContainerCodeunit -containerName $containerName `
-                                            -tenant "default" `
-                                            -CompanyName $_.CompanyName `
-                                            -Codeunitid $codeunitId `
-                                            -MethodName "SetBingMapsSettings" `
-                                            -Argument ('{ "BingMapsKey":"' + $bingMapsKey + '","WebServicesUsername": "' + $navAdminUsername + '","WebServicesKey": "' + $webServicesKey + '"}')
+                    -tenant "default" `
+                    -CompanyName $_.CompanyName `
+                    -Codeunitid $codeunitId `
+                    -MethodName "SetBingMapsSettings" `
+                    -Argument ('{ "BingMapsKey":"' + $bingMapsKey + '","WebServicesUsername": "' + $navAdminUsername + '","WebServicesKey": "' + $webServicesKey + '"}')
             }
         }
         elseif ($apiMethod) {
@@ -667,7 +661,7 @@ if ("$bingmapskey" -ne "") {
             $companyId = Get-NavContainerApiCompanyId -containerName $containerName -tenant $tenant -credential $credential
 
             $parameters = @{ 
-                "name" = "BingMapsKey"
+                "name"  = "BingMapsKey"
                 "value" = $bingMapsKey
             }
             Invoke-NavContainerApi `
@@ -694,10 +688,10 @@ copy-item -Path 'C:\Program Files\Microsoft Dynamics NAV\*\Service\CustomSetting
 if (Test-Path 'c:\inetpub\wwwroot\http\NAV' -PathType Container) {
     [System.IO.File]::WriteAllText('$containerFolder\clickonce.txt','http://${publicDnsName}:8080/NAV')
 }"
-[System.IO.File]::WriteAllText("$containerFolder\Version.txt",$navVersion)
-[System.IO.File]::WriteAllText("$containerFolder\Cu.txt",$cu)
+[System.IO.File]::WriteAllText("$containerFolder\Version.txt", $navVersion)
+[System.IO.File]::WriteAllText("$containerFolder\Cu.txt", $cu)
 [System.IO.File]::WriteAllText("$containerFolder\Country.txt", $country)
-[System.IO.File]::WriteAllText("$containerFolder\Title.txt",$title)
+[System.IO.File]::WriteAllText("$containerFolder\Title.txt", $title)
 
 # Install Certificate on host
 $certFile = Get-Item "$containerFolder\*.cer"
@@ -706,7 +700,7 @@ if ($certFile) {
     AddToStatus "Importing $certFileName to trusted root"
     $pfx = new-object System.Security.Cryptography.X509Certificates.X509Certificate2 
     $pfx.import($certFileName)
-    $store = new-object System.Security.Cryptography.X509Certificates.X509Store([System.Security.Cryptography.X509Certificates.StoreName]::Root,"localmachine")
+    $store = new-object System.Security.Cryptography.X509Certificates.X509Store([System.Security.Cryptography.X509Certificates.StoreName]::Root, "localmachine")
     $store.open("MaxAllowed") 
     $store.add($pfx) 
     $store.close()
