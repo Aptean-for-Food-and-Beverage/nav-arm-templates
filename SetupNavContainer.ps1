@@ -12,6 +12,12 @@ if (Test-Path -Path "C:\demo\*\BcContainerHelper.psm1") {
     Import-Module -name bccontainerhelper -DisableNameChecking
 }
 
+# temp fix (BC28 PS7 PSSession issue) - force PS5 for BC24+ containers
+if ($bcContainerHelperConfig) {
+    Import-Module BcContainerHelper -DisableNameChecking
+    $bcContainerHelperConfig.usePwshForBc24 = $false
+}
+
 $settingsScript = Join-Path $PSScriptRoot "settings.ps1"
 
 . "$settingsScript"
