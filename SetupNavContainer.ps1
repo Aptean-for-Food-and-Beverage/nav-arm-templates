@@ -184,7 +184,7 @@ else {
             $ApiAdAppKeyValue = $AdProperties.ApiAdAppKeyValue
 
 @"
-Set-NAVServerConfiguration -ServerInstance `$serverInstance -KeyName 'ExcelAddInAzureActiveDirectoryClientId' -KeyValue '$ExcelAdAppId' -WarningAction Ignore
+Set-NAVServerConfiguration -ServerInstance `$serverInstance -KeyName 'ExcelAddInAzureActiveDirectoryClientId' -KeyValue '$ExcelAdAppId' -WarningAction SilentlyContinue
 "@ | Add-Content "c:\myfolder\SetupConfiguration.ps1"
 
             $settings = Get-Content -path $settingsScript | Where-Object { 
